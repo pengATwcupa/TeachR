@@ -1,0 +1,1243 @@
+#############################################
+#        Part I  Descriptive Statistics
+#############################################
+
+# frequency table and charts based on categorical
+cate.ftable = function(dataset) {
+ # the input dataset is supposed to be a vector of categorical values
+ library(MASS)
+ freq = table(dataset)
+ frq=as.vector(freq)
+ rel.freq = round(freq/sum(freq),4)   # relative freq.
+ cumsum.freq =  cumsum(freq)  # cumulative freq.
+ rel.cum.freq=round(cumsum(frq/sum(frq)),4)
+ cbind(freq, rel.freq = rel.freq, cum.rel.freq = rel.cum.freq, cum.freq = cumsum.freq)
+}
+
+
+cate.pie = function(dataset){
+# dataset = is a vector of categorical data
+# three plot will be produced: bar char, pie chart
+### open the graphic window:
+#try(dev.off(),TRUE)
+#win.graph(14,17)
+#par(mar = c(3,1,2,2))
+####
+
+  mytable <- table(dataset)
+  slice = as.vector(mytable)
+  pct = round(slice/sum(slice)*100,1) 
+  lbls <- paste(names(mytable))
+  lbls = paste(lbls, pct)             # add percent to labels
+  lbls = paste(lbls, "%", sep = "")   # add % to labels
+  pie(slice, labels = lbls,  col=rainbow(length(lbls)),
+  main=" ", cex=0.8) 
+ }
+
+cate.barchart = function(dataset){
+# dataset = raw dataset of categorical values
+### open the graphic window:
+#try(dev.off(),TRUE)
+#win.graph(14,17)
+#par(mar = c(3,1,2,2))
+####
+  mytable <- table(dataset)
+  count = as.vector(mytable)
+  pct = round(count/sum(count)*100,1) 
+  lbls <- paste(names(mytable))
+  lbls = paste(lbls, pct)             # add percent to labels
+  lbls = paste(lbls, "%", sep = "")   # add % to labels
+  barplot(count,  horiz=FALSE,col=rainbow(length(lbls)), names.arg=lbls)
+}
+
+
+# frequency table based on numerical data set
+
+num.ftable=function(dataset, boundary){
+# dataset = numerical dataset
+# boundary = vector of boundary points of classes
+ freq = table(cut(dataset, breaks=boundary,include.lowest = TRUE, right = FALSE))
+ frq=as.vector(freq)
+ rel.freq = round(freq/sum(freq),4)   # relative freq.
+ cumsum.freq =  cumsum(freq)  # cumulative freq.
+ rel.cum.freq=round(cumsum(frq/sum(frq)),4)
+ cbind(freq, rel.freq = rel.freq, cum.rel.freq = rel.cum.freq, cum.freq = cumsum.freq)
+}
+
+
+num.hist=function(dataset, boundary){
+# dataset = numerical data set
+# boundary = boundary points used in the frequency table
+# both histogram and the frequency polygon will be created
+### open the graphic window:
+#try(dev.off(),TRUE)
+#win.graph(14,17)
+#par(mfrow=c(2,1), mar = c(3,2,2,2))
+####
+ freq = table(cut(dataset, breaks=boundary, include.lowest = TRUE, right = FALSE))
+ frq=as.vector(freq)
+ n.brk=length(boundary)
+ mid.pts=(boundary[-1]+boundary[-n.brk])/2
+ b0 = boundary[1]-(boundary[2]-boundary[1])/2
+ b1 = boundary[n.brk]+(boundary[2]-boundary[1])/2
+ cut.off=c(b0, mid.pts, b1)
+ frq0 =c(0, frq, 0)
+ mmin=min(dataset)-(boundary[2]-boundary[1])/2
+ mmax=max(dataset)+(boundary[2]-boundary[1])/2
+ hist(dataset,breaks=boundary, include.lowest = TRUE, right = FALSE, col=rainbow(length(boundary)), main="", xlim=c(mmin,mmax),  xlab="", ylab="Percentage",freq = TRUE)
+ hist(dataset,breaks=boundary, include.lowest = TRUE, right = FALSE, col=rainbow(length(boundary)), main="", xlim=c(mmin,mmax),  xlab="", ylab="Percentage",freq = TRUE)
+ points(cut.off, frq0, pch=16, col="red")
+ lines(cut.off, frq0, type = "l")
+}
+
+
+
+num.percentile =function(dataset,k){
+# dataset = numerical dataset
+srt.dataset = sort(dataset)
+cat("\n\nThe sorted data set is:\n\n",srt.dataset,"\n\n")
+
+n=length(dataset)
+L = (k/100)*n
+  if (L==round(L)){
+     per=(srt.dataset[L]+srt.dataset[L+1])/2
+     per
+    }
+  else{
+  per = srt.dataset[floor(L)+1]
+  per
+  }
+cat("The",k,"-th percentile is :",per,"\n\n")
+cat("\n\n")
+}
+
+
+num.5number=function(dataset){
+# dataset = numerical data
+percent=function(dataset,k){
+  srt.dataset=sort(dataset)
+  n=length(dataset)
+  L = (k/100)*n
+  if (L==round(L)){
+     per=(srt.dataset[L]+srt.dataset[L+1])/2
+     per
+    }
+  else{
+  per = srt.dataset[floor(L)+1]
+  per
+  }
+ }
+
+Min=min(dataset)
+Max=max(dataset)
+Q1=percent(dataset,k=25)
+Q2=percent(dataset,k=50)
+Q3=percent(dataset,k=75)
+cat("\n\n       The Five Number Summary of Data\n\n")
+print(cbind(Min=Min, Q1 = Q1, Q2 = Q2, Q3 = Q3, Max=Max))
+cat("\n\n The Mean and standard deviation are:\n\n")
+print(cbind(Mean = mean(dataset), Sample.Stdev = sd(dataset), Pop.Stdev = sd(dataset)*sqrt((length(dataset)-1)/length(dataset))))
+cat("\n\n")
+}
+
+   
+num.boxplot=function(dataset){
+### open the graphic window:
+#try(dev.off(),TRUE)
+#win.graph(14,17)
+#par(mar = c(3,1,2,2))
+####
+    data=dataset
+    percent = function(data, K){
+    srt = sort(data)
+    LL = (K/100)*length(srt)
+    if(floor(LL) == LL){
+      percentK = (srt[LL]+srt[LL+1])/2
+     }
+     else{
+     percentK = srt[floor(LL)+1]
+     }
+     percentK
+    }  
+   fivnum=c(min(sort(data)), percent(data,25), percent(data,50),percent(data,75), max(sort(data)))
+   y1=rep(1,5)
+   y2=rep(-1,5)
+   #dev.off()
+   plot(fivnum,y1, axes=FALSE,ylim=c(-2,2),xlab="", ylab="")
+   points(fivnum,y2)
+   lines(fivnum[2:4],y1[2:4])
+   lines(fivnum[2:4],y2[2:4])
+   segments(fivnum[1],0,fivnum[2],0)
+   segments(fivnum[4],0,fivnum[5],0)
+   for(i in 1:5) segments(fivnum[i],-1,fivnum[i],1)
+   Name =c("Min", "Q1", "Q2","Q3","Max")
+   for(i in 1:5) text(fivnum[i],1.5,Name[i])
+   for(i in 1:5) text(fivnum[i],-1.5,fivnum[i])
+ }
+
+
+#################################################
+#     Part III  Confidence Intervals
+#################################################
+
+#######################################
+#   One Sample Confidence Intervals
+#######################################
+
+##### 1. One sample mean
+CI.1.mean = function(xbar, s=NULL, sigma =NULL, n, conf.level=NULL){
+# small sample unknown population standard deviation
+ if (n <= 30){
+   if(length(s) == 1 && length(sigma)==0){
+     cat("\nSuggested Solution:  This is a small normal sample with unknown sigma problem:\n\n")
+     if (length(conf.level)==0){
+     cat("<** Since the confidence level is NOT provided, we use the default 95% instead. **>\n\n")
+     }
+     if (length(conf.level)==0) conf.level = 0.95
+     CV=abs(round(qt((1-conf.level)/2, n-1),3))
+     E = CV*s/sqrt(n)
+     LCI = xbar-E
+     UCI = xbar+E
+     per = conf.level*100
+     cat("Step 1: The t-crtical value should be use. The d.f.=n - 1 =", n-1,"\n")
+     cat("        The critical value based on",per,"% confidence level is CV =", CV,"\n\n")
+     cat("Step 2: The margin of error is given by \n")
+     cat("        E = CV*s/sqrt(n) =",CV,"*",s,"/sqrt(",n,")=",E,"\n\n")
+     cat("Step 3: The desired",per,"% confidence interval is:\n")
+     cat("       (Xbar-E, Xbar+E) = (",xbar,"-",E,",",xbar,"+",E,")=(",LCI,",",UCI,")\n\n")
+     cat("Step 4: The above confidence interval has a",per,"% of chance to include the true population mean\n\n")
+     }
+   else if (length(s) == 0 && length(sigma)==1){
+     cat("\nSuggested Solution:  This is a small normal sample with known sigma problem:\n\n")
+     if (length(conf.level)==0){
+     cat("<** Since the confidence level is NOT provided, we use the default 95% instead. **>\n\n")
+     }
+     if (length(conf.level)==0) conf.level = 0.95
+     CV=abs(round(qnorm((1-conf.level)/2),3))
+     E = CV*sigma/sqrt(n)
+     LCI = xbar-E
+     UCI = xbar+E
+     per = conf.level*100
+     cat("Step 1: The Z-crtical value should be use.\n")
+     cat("        The critical value based on",per,"% confidence level is CV =", CV,"\n\n")
+     cat("Step 2: The margin of error is given by \n")
+     cat("        E = CV*s/sqrt(n) =",CV,"*",sigma,"/sqrt(",n,")=",E,"\n\n")
+     cat("Step 3: The desired",per,"% confidence interval is:\n")
+     cat("       (Xbar-E, Xbar+E) = (",xbar,"-",E,",",xbar,"+",E,")=(",LCI,",",UCI,")\n\n")
+     cat("Step 4: The above confidence interval has a",per,"% of chance to include the true population mean\n\n")
+   }
+   else cat("\n The information you provided is not enough to construct the desired C.I.!\n")
+  }
+# large sample mean
+  else{
+     cat("\nSuggested Solution:  This is a large sample with unknown sigma problem:\n\n")
+     if (length(conf.level)==0){
+     cat("<** Since the confidence level is NOT provided, we use the default 95% instead. **>\n\n")
+     }
+     if (length(conf.level)==0) conf.level = 0.95
+     if(length(s) == 1 && length(sigma)==0){
+     CV=abs(round(qnorm((1-conf.level)/2),3))
+     E = CV*s/sqrt(n)
+     LCI = xbar-E
+     UCI = xbar+E
+     per = conf.level*100
+     cat("Step 1: The Z-crtical value should be use.\n")
+     cat("        The critical value based on",per,"% confidence level is CV =", CV,"\n\n")
+     cat("Step 2: The margin of error is given by \n")
+     cat("        E = CV*s/sqrt(n) =",CV,"*",s,"/sqrt(",n,")=",E,"\n\n")
+     cat("Step 3: The desired",per,"% confidence interval is:\n")
+     cat("       (Xbar-E, Xbar+E) = (",xbar,"-",E,",",xbar,"+",E,")=(",LCI,",",UCI,")\n\n")
+     cat("Step 4: The above confidence interval has a",per,"% of chance to include the true population mean\n\n")
+     }
+   else if (length(s) == 0 && length(sigma)==1){
+     cat("\nSuggested Solution:  This is a large sample with known sigma problem:\n\n")
+     if (length(conf.level)==0){
+      cat("<** Since the confidence level is NOT provided, we use the default 95% instead. **>\n\n")
+      }
+     if (length(conf.level)==0) conf.level = 0.95
+     CV=abs(round(qnorm((1-conf.level)/2),3))
+     E = CV*sigma/sqrt(n)
+     LCI = xbar-E
+     UCI = xbar+E
+     per = conf.level*100
+     cat("Step 1: The Z-crtical value should be use.\n")
+     cat("        The critical value based on",per,"% confidence level is CV =", CV,"\n\n")
+     cat("Step 2: The margin of error is given by \n")
+     cat("        E = CV*s/sqrt(n) =",CV,"*",sigma,"/sqrt(",n,")=",E,"\n\n")
+     cat("Step 3: The desired",per,"% confidence interval is:\n")
+     cat("       (Xbar-E, Xbar+E) = (",xbar,"-",E,",",xbar,"+",E,")=(",LCI,",",UCI,")\n\n")
+     cat("Step 4: The above confidence interval has a",per,"% of chance to include the true population mean\n\n")
+   }
+   else cat("\n The information you provided is not enough to construct the desired C.I.!\n")
+   }
+  }
+
+##### 2. One sample proportion
+CI.1.prop = function(phat, n, conf.level=NULL){
+   if (n<=30) stop("The sample size is too small to construct the desired confidence interval!")
+   else{
+     cat("\nSuggested Solution:  This is a large sample proportion problem:\n\n")
+     if (length(conf.level)==0){
+     cat("<** Since the confidence level is NOT provided, we use the default 95% instead. **>\n\n")
+     }
+     if (length(conf.level)==0) conf.level = 0.95
+     CV=abs(round(qnorm((1-conf.level)/2),3))
+     s.pq = sqrt(phat*(1-phat))
+     E = CV*s.pq/sqrt(n)
+     LCI = phat - E
+     UCI = phat + E
+     per = conf.level*100
+     cat("Step 1: The Z-crtical value should be use.\n")
+     cat("        The critical value based on",per,"% confidence level is CV =", CV,"\n\n")
+     cat("Step 2: The margin of error is given by \n")
+     cat("        E = CV*sqrt(pq)/sqrt(n) =",CV,"*",s.pq,"/sqrt(",n,")=",E,"\n\n")
+     cat("Step 3: The desired",per,"% confidence interval is:\n")
+     cat("       (phat-E, phat+E) = (",phat,"-",E,",",phat,"+",E,")=(",LCI,",",UCI,")\n\n")
+     cat("Step 4: The above confidence interval has a",per,"% of chance to include the true population proportion.\n\n")
+   }
+}
+
+##### 3. One sample proportion
+CI.1.var = function(s, n, conf.level=NULL){
+     cat("\nSuggested Solution:  This is a population standard deviation/variance problem:\n\n")
+     if (length(conf.level)==0){
+     cat("<** Since the confidence level is NOT provided, we use the default 95% instead. **>\n\n")
+     }
+     if (length(conf.level)==0) conf.level = 0.95
+     h.a.l = (1-conf.level)/2
+     h.a.r = 1 - h.a.l
+     d.f = n-1
+     CV.L = round(qchisq(h.a.l,d.f),3)
+     CV.R = round(qchisq(h.a.r, d.f),3)
+     LCI = d.f*s^2/CV.R
+     UCI = d.f*s^2/CV.L
+     per = conf.level*100
+     cat("Step 1: The Chisquare-crtical value should be use. NOTE: These values may be slightly different\n")
+     cat("        from what you obtained from the chi-square table, but it should be close to your number!\n")
+     cat("        The two critical values based on",per,"% confidence level and",d.f,"degrees of freedom are:\n")
+     cat("        CV.L = ", CV.L, " and CV.R = ", CV.R, "\n\n")
+     cat("Step 2: The desired",per,"% confidence interval for the population variance is:\n")
+     cat("       ({[n-1]s^2}/CV.R, {[n-1]s^2}/CV.L) = ([",d.f,"*",s^2,"]/",CV.R,", [",d.f,"*", s^2,"]/",CV.L,")=(",LCI,",",UCI,")\n\n")
+     cat("        The desired",per,"% confidence interval for the population standard deviation is:(",sqrt(LCI),",",sqrt(UCI),")\n\n")
+     cat("Step 3: The above confidence interval has a",per,"% of chance to include the true population \n")
+     cat("        variance and standard deviation respectively.\n\n")
+ }
+
+##### 4. Sample size determination
+
+Sample.size=function(E, s=NULL, p=NULL, type = c("mean", "proportion"), conf.level = NULL){
+  if (length(s)==1 && type =="mean"){
+   cat("\nSuggested Solution:\n\n")
+   cat("This is a sample size determination of estimation population mean problem.\n")
+   cat("The information you provided is:\n")
+   cat("The margin of error E = ",E,", the standard deviation s =",s,".\n")
+   if (length(conf.level) ==0) {
+   conf.level = 0.95
+   cat("Since the confidence level is not provided, we use the default 95% confidence level.\n")
+   }
+   else {
+   per = conf.level*100
+   cat("The given confidence level is: ",per,"%.\n")}
+   h.a = 1-(1-conf.level)/2
+   z.h.a = qnorm(h.a)
+   N = (z.h.a*s/E)^2
+   cat("The same size is calculated by [(s*Za/2)/E]^2 =",N,".\n")
+   n=ceiling(N)
+   cat("The desired sample size required is:",n,".\n\n")
+   
+   }
+  else if (length(s)==0 && type == "proportion"){
+     if (length(p)==1){
+       cat("\nSuggested Solution:\n\n")
+       cat("This is a sample size determination of estimation population proportion problem.\n")
+       cat("The information you provided is:\n")
+       cat("The margin of error E = ",E,", the prior proportion p =",p,".\n")
+       if (length(conf.level) ==0) {
+          conf.level = 0.95
+           cat("Since the confidence level is not provided, we use the default 95% confidence level.\n")
+          }
+       else {
+        per = conf.level*100
+        cat("The given confidence level is: ",per,"%.\n")}
+        h.a = 1-(1-conf.level)/2
+        z.h.a = qnorm(h.a)
+        N = (z.h.a*sqrt(p*(1-p))/E)^2
+        cat("The same size is calculated by [{Za/2*sqr(p(1-p))}/E]^2 =",N,".\n")
+        n=ceiling(N)
+       cat("The desired sample size required is:",n,".\n\n")
+     }
+     else{
+       cat("\nSuggested Solution:\n\n")
+       cat("This is a sample size determination of estimation population proportion problem.\n")
+       cat("The information you provided is:\n")
+       cat("The margin of error E = ",E,". Since no prior proportion is provided, we use p = 50%.\n")
+       p = 0.5
+        if (length(conf.level) ==0) {
+          conf.level = 0.95
+          cat("Since the confidence level is not provided, we use the default 95% confidence level.\n")
+          }
+        else{
+         per = conf.level*100
+         cat("The given confidence level is: ",per,"%.\n")}
+         h.a = 1-(1-conf.level)/2
+         z.h.a = qnorm(h.a)
+         N = (z.h.a*sqrt(p*(1-p))/E)^2
+         cat("The same size is calculated by [{Za/2*sqr(p(1-p))}/E]^2 =",N,".\n")
+         n=ceiling(N)
+        cat("The desired sample size required is:",n,".\n\n")
+     }
+   }
+  else cat("\n The information provided is not enough or contradictory to to find the desired sample size!") 
+}
+
+
+
+############################################################################################################
+############################################################################################################
+##                                       Testing Hypothesis: One Sample
+############################################################################################################
+############################################################################################################
+##############################################
+##############################################
+##    One Sample Test of Population Mean
+##############################################
+##############################################
+
+Test.1.mean=function(xbar, mu0, n, s=NULL, sigma=NULL, claim=c("GT","GE", "EQ","NE", "LT", "LE"), level, ...){
+
+#### step one function
+#step1.ave=function(mu0, claim=c("GT","GE", "EQ","NE", "LT", "LE")){
+step1.ave=function(mu0, claim){
+step0.gt=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is mu0 >", mu0,".\n")
+  cat("          This is a right-tailed test. That is,")
+ }
+step0.ge=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is mu0 >=", mu0,".\n")
+  cat("          This is a left-tailed test. That is,")
+ }
+step0.lt=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is mu0 <", mu0,".\n")
+  cat("          This is a left-tailed test. That is,")
+ }
+step0.le=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is mu0 <=", mu0,".\n")
+  cat("          This is a right-tailed test. That is,")
+ }
+step0.eq=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is mu0 =", mu0,".\n")
+  cat("          This is a two-tailed test. That is,")
+ }
+step0.ne=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is mu0 !=", mu0,".\n")
+  cat("          This is a two-tailed test. That is,")
+ }
+step1.R=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: mu0 <=",mu0,"  v.s.   Ha: mu0 > ",mu0)
+  cat("\n")
+ }
+step1.L=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: mu0 >=",mu0,"  v.s.   Ha: mu0 < ",mu0)
+  cat("\n")
+ }
+step1.T=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: mu0 =",mu0,"  v.s.   Ha: mu0 != ",mu0)
+  cat("\n")
+ }
+
+if(claim =="GT") {
+   step0.gt()
+   step1.R()     
+ }
+else if(claim =="LE"){
+   step0.le()
+   step1.R()  
+ }
+else if(claim =="GE"){
+   step0.ge()
+   step1.L()  
+ }
+else if(claim =="LT"){
+   step0.lt()
+   step1.L()  
+ }
+else if(claim =="EQ"){
+   step0.eq()
+   step1.T()  
+ }
+else if(claim =="NE"){
+   step0.ne()
+   step1.T()  
+ }
+else stop("Make sure mu0 and the orginal claim is correctly specified!")
+}
+
+######### step 2 function: Test Statistic
+#Step2.ts=function(xbar, mu0, n, s=NULL, sigma=NULL,...){
+Step2.ts=function(xbar, mu0, n, s, sigma){
+if(length(s)==1 && length(sigma)==0){
+  TS=(xbar - mu0)/(s/sqrt(n))
+  cat("Step 2.0. The test statistics is given by:\n")
+  cat("          TS=(xbar - mu0)/[s/sqrt(n)] = (",xbar,"-",mu0,")/[",s,"/sqrt(",n,")] = ",TS,"\n")
+  }
+else if(length(s)==0 && length(sigma)==1){
+  TS=(xbar - mu0)/(sigma/sqrt(n))
+  cat("Step 2.0. The test statistics is given by:\n")
+  cat("          TS=(xbar - mu0)/[sigma/sqrt(n)] = (",xbar,"-",mu0,")/[",sigma,"/sqrt(",n,")] = ",TS,"\n")
+  }
+else if(length(s)==1 && length(sigma)==1&& s==sigma){
+  TS=(xbar - mu0)/(s/sqrt(n))
+  cat("Step 2.0. The test statistics is given by:\n")
+  cat("          TS=(xbar - mu0)/[s/sqrt(n)] = (",xbar,"-",mu0,")/[",s,"/sqrt(",n,")] = ",TS,"\n")
+  }
+else stop("\n Check the input standard deviation please!\n")
+
+}
+
+###### Step 3.4. Critical Value & p-value
+#step3.4.cvp = function(xbar, mu0,  n, s=NULL, sigma=NULL, claim=c("GT","GE", "EQ","NE", "LT", "LE"), level, ...){
+step3.4.cvp = function(xbar, mu0,  n, s, sigma, claim, level){
+if (level > 1 || level < 0) stop("The significant must be between 0 and 1 and is Usually close to 0!")
+#######  Case I: Normal Test  ########
+if (n > 30 || (n<=30 && length(sigma)==1)){ ## Large sample                  
+   if (length(s)==1) dnm = s/sqrt(n)
+   if (length(sigma)==1) dnm = sigma/sqrt(n)
+   if(claim == "GT" || claim =="LE"){ #right--RRRRIIIGGHHTTT
+   TS = (xbar-mu0)/dnm
+   pval = 1-pnorm(TS)
+   CV.R = abs(qnorm(level))
+  cat("Step 3.0  Since this is a right-tailed Z test, the critical value is\n")
+  cat("          on the right tail: That is CV.R = ",CV.R,"\n")
+  cat("          The corresponding P-value is the area to the right of TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+     if(pval < level){## Rejection+++++++RRRRRRRRRR
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"> CV.R=",CV.R,",\n")
+  cat("                                 We reject Ho: mu0 <=",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: mu0 <=",mu0,".\n")
+       if(claim =="GT"){           
+  cat("Step 4.5  We conclude the original claim that mu0 >",mu0,".\n\n")
+       }                           
+       if(claim =="LE"){          
+  cat("Step 4.5  We reject the original claim that mu0 <=",mu0,".\n\n")
+       }                           
+      }                           
+    else{ ## conclusion ++++++++++RRRRRRR  
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"< CV.R=",CV.R,",\n")
+  cat("                                 We fail to reject Ho: mu0 <=",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail to reject Ho: mu0 <=",mu0,".\n")
+       if(claim =="GT"){       
+  cat("Step 4.5  We reject the original claim that mu0 >",mu0,".\n\n")
+       }                      
+       if(claim =="LE"){       
+  cat("Step 4.5  We fail to the original claim that mu0 <=",mu0,".\n\n")
+       }                        
+     }                          
+    }
+#}
+# step3.4.cvp(xbar=2.4, mu0=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+#
+   else if (claim == "LT" || claim =="GE"){#left ------------LLLEEEFFTTT
+   TS = (xbar-mu0)/dnm
+   pval = pnorm(TS)
+   CV.L = - abs(qnorm(level))
+  cat("Step 3.0  Since this is a left-tailed Z test, the critical value is\n")
+  cat("          on the left tail: That is CV.L = ",CV.L,"\n")
+  cat("          The corresponding P-value is the area to the left of TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+     if(pval < level){## Rejection++++++++++LLLLLLLLLLLLLLLLLLLLLLLL
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"< CV.L=",CV.L,",\n")
+  cat("                                 We reject Ho: mu0 >=",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: mu0 >=",mu0,".\n")
+       if(claim =="LT"){
+  cat("Step 4.5  We conclude the original claim that mu0 <",mu0,".\n\n")
+       }
+       if(claim =="GE"){
+  cat("Step 4.5  We reject the original claim that mu0 >=",mu0,".\n\n")
+       }
+      }
+    else{ ## conclusion ++++++++++
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"> CV.L=",CV.L,",\n")
+  cat("                                 We fail to reject Ho: mu0 <=",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail reject Ho: mu0 <=",mu0,".\n")
+       if(claim =="LT"){
+  cat("Step 4.5  We reject the original claim that mu0 <",mu0,".\n\n")
+       }
+       if(claim =="GE"){
+  cat("Step 4.5  We conclude the original claim that mu0 >=",mu0,".\n\n")
+       }
+     }
+}
+#}
+# step3.4.cvp(xbar=2.4, mu0=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+#
+   else if(claim == "EQ" || claim =="NE"){# Two -------TTTTTTTTTWWWWWWWWWWWWWWWOOOOOOOOOOOO
+   TS = (xbar-mu0)/dnm
+   pval = 2*min(pnorm(TS), 1-pnorm(TS))
+   CV = abs(qnorm(level/2))
+   CV.L = -CV
+   CV.R = CV
+  cat("Step 3.0  Since this is a two-tailed Z test, the two critical values are\n")
+  cat("          on the left tail: That is CV.L = ",CV.L," and CV.R =",CV.R,".\n")
+  cat("          The corresponding P-value is twice the smaller area formed by TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+  cat("Step ")
+     if(pval < level){## Rejection++++++++++TTTTTTTTTTTTTTTTTT
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since |TS| =",abs(TS),"> CV.R=",CV.R,",\n")
+  cat("                                 We reject Ho: mu0 =",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: mu0 =",mu0,".\n")
+       if(claim =="NE"){
+  cat("Step 4.5  We conclude the original claim that mu0 !=",mu0,".\n\n")
+       }
+       if(claim =="EQ"){
+  cat("Step 4.5  We reject the original claim that mu0 =",mu0,".\n\n")
+       }
+      }
+    else{ ## conclusion TTTTTTTTTTTTTTTTTTTTTTTT
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since",CV.L,"=CV.L < |TS|=",abs(TS),"< CV.R=",CV.R,",\n")
+  cat("                                 We fail to reject Ho: mu0 =",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail reject Ho: mu0 <=",mu0,".\n")
+       if(claim =="EQ"){
+  cat("Step 4.5  We conclude the original claim that mu0 =",mu0,".\n\n")
+       }
+       if(claim =="NE"){
+  cat("Step 4.5  We reject the original claim that mu0 !=",mu0,".\n\n")
+       }
+     }
+    }
+  }
+ #### END of n>30
+ # step3.4.cvp(xbar=2.4, mu0=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+ #
+ # Next code is for n<=30
+ #######  Case II: t Test  ########
+ else if (n<=30 && length(sigma)==0 && length(s)==1){
+  #*******************************************
+   if (length(s)==1) dnm = s/sqrt(n)
+   if (length(sigma)==1) dnm = sigma/sqrt(n)
+   if(claim == "GT" || claim =="LE"){ #right--RRRRIIIGGHHTTT
+   TS = (xbar-mu0)/dnm
+   pval = 1-pt(TS, n-1)
+   CV.R = abs(qt(level, n-1))
+  cat("Step 3.0  Since this is a right-tailed t test, the critical value is\n")
+  cat("          on the right tail: That is CV.R (d.f=",n-1,")= ",CV.R,"\n")
+  cat("          The corresponding P-value is the area to the right of TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+     if(pval < level){## Rejection+++++++RRRRRRRRRR
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"> CV.R=",CV.R,",\n")
+  cat("                                 We reject Ho: mu0 <=",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: mu0 <=",mu0,".\n")
+  cat("          Note: This p-value method is not recommended for manual computation.\n")
+       if(claim =="GT"){           
+  cat("Step 4.5  We conclude the original claim that mu0 >",mu0,".\n\n")
+       }                           
+       if(claim =="LE"){          
+  cat("Step 4.5  We reject the original claim that mu0 <=",mu0,".\n\n")
+       }                           
+      }                           
+    else{ ## conclusion ++++++++++RRRRRRR  
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"< CV.R=",CV.R,",\n")
+  cat("                                 We fail to reject Ho: mu0 <=",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail to reject Ho: mu0 <=",mu0,".\n")
+  cat("          Note: This p-value method is not recommended for manual computation.\n")
+       if(claim =="GT"){       
+  cat("Step 4.5  We reject the original claim that mu0 >",mu0,".\n\n")
+       }                      
+       if(claim =="LE"){       
+  cat("Step 4.5  We fail to the original claim that mu0 <=",mu0,".\n\n")
+       }                        
+     }                          
+    }
+#}
+# step3.4.cvp(xbar=2.4, mu0=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+#
+   else if (claim == "LT" || claim =="GE"){#left ------------LLLEEEFFTTT
+   TS = (xbar-mu0)/dnm
+   pval = pt(TS, n-1)
+   CV.L = - abs(qt(level, n-1))
+  cat("Step 3.0  Since this is a left-tailed t test, the critical value is\n")
+  cat("          on the left tail: That is CV.L(d.f.=",n-1,") = ",CV.L,"\n")
+  cat("          The corresponding P-value is the area to the left of TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+     if(pval < level){## Rejection++++++++++LLLLLLLLLLLLLLLLLLLLLLLL
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"< CV.L=",CV.L,",\n")
+  cat("                                 We reject Ho: mu0 >=",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: mu0 >=",mu0,".\n")
+  cat("          Note: This p-value method is not recommended for manual computation.\n")
+       if(claim =="LT"){
+  cat("Step 4.5  We conclude the original claim that mu0 <",mu0,".\n\n")
+       }
+       if(claim =="GE"){
+  cat("Step 4.5  We reject the original claim that mu0 >=",mu0,".\n\n")
+       }
+      }
+    else{ ## conclusion ++++++++++
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"> CV.L=",CV.L,",\n")
+  cat("                                 We fail to reject Ho: mu0 >=",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail reject Ho: mu0 >=",mu0,".\n")
+  cat("          Note: This p-value method is not recommended for manual computation.\n")
+       if(claim =="LT"){
+  cat("Step 4.5  We reject the original claim that mu0 <",mu0,".\n\n")
+       }
+       if(claim =="GE"){
+  cat("Step 4.5  We conclude the original claim that mu0 >=",mu0,".\n\n")
+       }
+     }
+}
+#}
+# step3.4.cvp(xbar=2.4, mu0=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+#
+   else if(claim == "EQ" || claim =="NE"){# Two -------TTTTTTTTTWWWWWWWWWWWWWWWOOOOOOOOOOOO
+   TS = (xbar-mu0)/dnm
+   pval = 2*min(pt(TS,n-1), 1-pt(TS,n-1))
+   CV = abs(qt(level/2,n-1))
+   CV.L = -CV
+   CV.R = CV
+  cat("Step 3.0  Since this is a two-tailed test, the two critical values are\n")
+  cat("          on the left tail: That is CV.L(d.f.=",n-1,") = ",CV.L," and CV.R =",CV.R,".\n")
+  cat("          The corresponding P-value is twice the smaller area formed by TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+  cat("Step ")
+     if(pval < level){## Rejection++++++++++TTTTTTTTTTTTTTTTTT
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since |TS| =",abs(TS),"> CV.R=",CV.R,",\n")
+  cat("                                 We reject Ho: mu0 =",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: mu0 =",mu0,".\n")
+  cat("          Note: This p-value method is not recommended for manual computation.\n")
+       if(claim =="NE"){
+  cat("Step 4.5  We conclude the original claim that mu0 !=",mu0,".\n\n")
+       }
+       if(claim =="EQ"){
+  cat("Step 4.5  We reject the original claim that mu0 =",mu0,".\n\n")
+       }
+      }
+    else{ ## conclusion TTTTTTTTTTTTTTTTTTTTTTTT
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since",CV.L,"=CV.L < |TS|=",abs(TS),"< CV.R=",CV.R,",\n")
+  cat("                                 We fail to reject Ho: mu0 =",mu0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail reject Ho: mu0 <=",mu0,".\n")
+  cat("          Note: This p-value method is not recommended for manual computation.\n")
+       if(claim =="EQ"){
+  cat("Step 4.5  We conclude the original claim that mu0 =",mu0,".\n\n")
+       }
+       if(claim =="NE"){
+  cat("Step 4.5  We reject the original claim that mu0 !=",mu0,".\n\n")
+       }
+     }
+    }
+  #******************************************* 
+ }
+ else stop("The information provided is not enough for testing the hypothesis!")
+}
+# The final outout:
+step1.ave(mu0, claim)
+Step2.ts(xbar, mu0, n, s, sigma)
+step3.4.cvp(xbar, mu0,  n, s, sigma, claim, level)
+
+}## out loop
+#######  source("C:\\Users\\1\\Desktop\\TeachingUSB2011backup\\Cpeng\\Teaching\\Winter2010\\R_testhypothesis.txt")
+####### Test.1.mean(xbar=21, mu0=18, n=56, s=3.6, sigma=NULL, claim="GT", level=0.05)
+
+
+
+
+#########################################
+#########################################
+##          Proportion
+#########################################
+#########################################
+
+
+Test.1.prop=function(phat, p0, n, claim=c("GT","GE", "EQ","NE", "LT", "LE"), level, ...){
+
+#### step one function
+#step1.ave=function(p0, claim=c("GT","GE", "EQ","NE", "LT", "LE")){
+step1.ave=function(p0, claim){
+step0.gt=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is p0 >", p0,".\n")
+  cat("          This is a right-tailed test. That is,")
+ }
+step0.ge=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is p0 >=", p0,".\n")
+  cat("          This is a left-tailed test. That is,")
+ }
+step0.lt=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is p0 <", p0,".\n")
+  cat("          This is a left-tailed test. That is,")
+ }
+step0.le=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is p0 <=", p0,".\n")
+  cat("          This is a right-tailed test. That is,")
+ }
+step0.eq=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is p0 =", p0,".\n")
+  cat("          This is a two-tailed test. That is,")
+ }
+step0.ne=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is p0 !=", p0,".\n")
+  cat("          This is a two-tailed test. That is,")
+ }
+step1.R=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: p0 <=",p0,"  v.s.   Ha: p0 > ",p0)
+  cat("\n")
+ }
+step1.L=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: p0 >=",p0,"  v.s.   Ha: p0 < ",p0)
+  cat("\n")
+ }
+step1.T=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: p0 =",p0,"  v.s.   Ha: p0 != ",p0)
+  cat("\n")
+ }
+
+if(claim =="GT") {
+   step0.gt()
+   step1.R()     
+ }
+else if(claim =="LE"){
+   step0.le()
+   step1.R()  
+ }
+else if(claim =="GE"){
+   step0.ge()
+   step1.L()  
+ }
+else if(claim =="LT"){
+   step0.lt()
+   step1.L()  
+ }
+else if(claim =="EQ"){
+   step0.eq()
+   step1.T()  
+ }
+else if(claim =="NE"){
+   step0.ne()
+   step1.T()  
+ }
+else stop("Make sure p0 and the orginal claim is correctly specified!")
+}
+
+######### step 2 function: Test Statistic
+#Step2.ts=function(phat, p0, n){
+Step2.ts=function(phat, p0, n){
+if(n>30){
+  TS=(phat - p0)/sqrt(phat*(1-phat)/n)
+  cat("Step 2.0. The test statistics is given by:\n")
+  cat("          TS=(phat - p0)/[sqrt(phat(1-phat)/n)] \n")
+  cat("            = (",phat,"-",p0,")/sqrt(",phat,"(1-",phat,")/",n,") = ",TS,"\n")
+  }
+else stop("\nThe sample size is too small!\n")
+
+}
+
+###### Step 3.4. Critical Value & p-value
+#step3.4.cvp = function(phat, p0,  n, claim=c("GT","GE", "EQ","NE", "LT", "LE"), level, ...){
+step3.4.cvp = function(phat, p0,  n, claim, level){
+if (level > 1 || level < 0) stop("The significant must be between 0 and 1 and is Usually close to 0!")
+#######  Case I: Normal Test  ########
+if (n > 30){ ## Large sample                  
+   if(claim == "GT" || claim =="LE"){ #right--RRRRIIIGGHHTTT
+   TS = (phat-p0)/sqrt(phat*(1-phat))
+   pval = 1-pnorm(TS)
+   CV.R = abs(qnorm(level))
+  cat("Step 3.0  Since this is a right-tailed Z test, the critical value is\n")
+  cat("          on the right tail: That is CV.R = ",CV.R,"\n")
+  cat("          The corresponding P-value is the area to the right of TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+     if(pval < level){## Rejection+++++++RRRRRRRRRR
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"> CV.R=",CV.R,",\n")
+  cat("                                 We reject Ho: p0 <=",p0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: p0 <=",p0,".\n")
+       if(claim =="GT"){           
+  cat("Step 4.5  We conclude the original claim that p0 >",p0,".\n\n")
+       }                           
+       if(claim =="LE"){          
+  cat("Step 4.5  We reject the original claim that p0 <=",p0,".\n\n")
+       }                           
+      }                           
+    else{ ## conclusion ++++++++++RRRRRRR  
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"< CV.R=",CV.R,",\n")
+  cat("                                 We fail to reject Ho: p0 <=",p0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail to reject Ho: p0 <=",p0,".\n")
+       if(claim =="GT"){       
+  cat("Step 4.5  We reject the original claim that p0 >",p0,".\n\n")
+       }                      
+       if(claim =="LE"){       
+  cat("Step 4.5  We fail to the original claim that p0 <=",p0,".\n\n")
+       }                        
+     }                          
+    }
+#}
+# step3.4.cvp(phat=2.4, p0=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+#
+   else if (claim == "LT" || claim =="GE"){#left ------------LLLEEEFFTTT
+   TS = (phat-p0)/sqrt(phat*(1-phat))
+   pval = pnorm(TS)
+   CV.L = - abs(qnorm(level))
+  cat("Step 3.0  Since this is a left-tailed Z test, the critical value is\n")
+  cat("          on the left tail: That is CV.L = ",CV.L,"\n")
+  cat("          The corresponding P-value is the area to the left of TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+     if(pval < level){## Rejection++++++++++LLLLLLLLLLLLLLLLLLLLLLLL
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"< CV.L=",CV.L,",\n")
+  cat("                                 We reject Ho: p0 >=",p0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: p0 >=",p0,".\n")
+       if(claim =="LT"){
+  cat("Step 4.5  We conclude the original claim that p0 <",p0,".\n\n")
+       }
+       if(claim =="GE"){
+  cat("Step 4.5  We reject the original claim that p0 >=",p0,".\n\n")
+       }
+      }
+    else{ ## conclusion ++++++++++
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"> CV.L=",CV.L,",\n")
+  cat("                                 We fail to reject Ho: p0 <=",p0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail reject Ho: p0 <=",p0,".\n")
+       if(claim =="LT"){
+  cat("Step 4.5  We reject the original claim that p0 <",p0,".\n\n")
+       }
+       if(claim =="GE"){
+  cat("Step 4.5  We conclude the original claim that p0 >=",p0,".\n\n")
+       }
+     }
+}
+#}
+# step3.4.cvp(phat=2.4, p0=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+#
+   else if(claim == "EQ" || claim =="NE"){# Two -------TTTTTTTTTWWWWWWWWWWWWWWWOOOOOOOOOOOO
+   TS = (phat-p0)/sqrt(phat*(1-phat))
+   pval = 2*min(pnorm(TS), 1-pnorm(TS))
+   CV = abs(qnorm(level/2))
+   CV.L = -CV
+   CV.R = CV
+  cat("Step 3.0  Since this is a two-tailed Z test, the two critical values are\n")
+  cat("          on the left tail: That is CV.L = ",CV.L," and CV.R =",CV.R,".\n")
+  cat("          The corresponding P-value is twice the smaller area formed by TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+  cat("Step ")
+     if(pval < level){## Rejection++++++++++TTTTTTTTTTTTTTTTTT
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since |TS| =",abs(TS),"> CV.R=",CV.R,",\n")
+  cat("                                 We reject Ho: p0 =",p0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: p0 =",p0,".\n")
+       if(claim =="NE"){
+  cat("Step 4.5  We conclude the original claim that p0 !=",p0,".\n\n")
+       }
+       if(claim =="EQ"){
+  cat("Step 4.5  We reject the original claim that p0 =",p0,".\n\n")
+       }
+      }
+    else{ ## conclusion TTTTTTTTTTTTTTTTTTTTTTTT
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since",CV.L,"=CV.L < |TS|=",abs(TS),"< CV.R=",CV.R,",\n")
+  cat("                                 We fail to reject Ho: p0 =",p0,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail reject Ho: p0 <=",p0,".\n")
+       if(claim =="EQ"){
+  cat("Step 4.5  We conclude the original claim that p0 =",p0,".\n\n")
+       }
+       if(claim =="NE"){
+  cat("Step 4.5  We reject the original claim that p0 !=",p0,".\n\n")
+       }
+     }
+    }
+  }
+ #### END of n>30
+ # step3.4.cvp(phat=2.4, p0=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+ #
+ # Next code is for n<=30
+ else stop("The Sample size is too small!")
+}
+# The final outout:
+step1.ave(p0, claim)
+Step2.ts(phat, p0, n)
+step3.4.cvp(phat, p0,  n, claim, level)
+
+}
+
+## Test.1.prop(phat=0.46, 0.4, n=79, claim="GT", level=0.05)
+
+
+
+
+#########################################
+#########################################
+##          Population Variance
+#########################################
+#########################################
+
+Test.1.var=function(s.sq, sigma0.sq, n, claim=c("GT","GE", "EQ","NE", "LT", "LE"), level, ...){
+
+#### step one function
+#step1.ave=function(sigma0.sq, claim=c("GT","GE", "EQ","NE", "LT", "LE")){
+step1.ave=function(sigma0.sq, claim){
+step0.sq.gt=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is sigma0.sq >", sigma0.sq,".\n")
+  cat("          This is a right-tailed test. That is,")
+ }
+step0.sq.ge=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is sigma0.sq >=", sigma0.sq,".\n")
+  cat("          This is a left-tailed test. That is,")
+ }
+step0.sq.lt=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is sigma0.sq <", sigma0.sq,".\n")
+  cat("          This is a left-tailed test. That is,")
+ }
+step0.sq.le=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is sigma0.sq <=", sigma0.sq,".\n")
+  cat("          This is a right-tailed test. That is,")
+ }
+step0.sq.eq=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is sigma0.sq =", sigma0.sq,".\n")
+  cat("          This is a two-tailed test. That is,")
+ }
+step0.sq.ne=function(){
+  cat("\n")
+  cat("Step 0.5. The original claim is sigma0.sq !=", sigma0.sq,".\n")
+  cat("          This is a two-tailed test. That is,")
+ }
+step1.R=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: sigma0.sq <=",sigma0.sq,"  v.s.   Ha: sigma0.sq > ",sigma0.sq)
+  cat("\n")
+ }
+step1.L=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: sigma0.sq >=",sigma0.sq,"  v.s.   Ha: sigma0.sq < ",sigma0.sq)
+  cat("\n")
+ }
+step1.T=function(){
+  cat("\n")
+  cat("Step 1.0. Ho: sigma0.sq =",sigma0.sq,"  v.s.   Ha: sigma0.sq != ",sigma0.sq)
+  cat("\n")
+ }
+
+if(claim =="GT") {
+   step0.sq.gt()
+   step1.R()     
+ }
+else if(claim =="LE"){
+   step0.sq.le()
+   step1.R()  
+ }
+else if(claim =="GE"){
+   step0.sq.ge()
+   step1.L()  
+ }
+else if(claim =="LT"){
+   step0.sq.lt()
+   step1.L()  
+ }
+else if(claim =="EQ"){
+   step0.sq.eq()
+   step1.T()  
+ }
+else if(claim =="NE"){
+   step0.sq.ne()
+   step1.T()  
+ }
+else stop("Make sure sigma0.sq and the orginal claim is correctly specified!")
+}
+
+######### step 2 function: Test Statistic
+#Step2.ts=function(s.sq, sigma0.sq, n){
+Step2.ts=function(s.sq, sigma0.sq, n){
+  TS=(n-1)*s.sq/sigma0.sq
+  cat("Step 2.0. The test statistics is given by:\n")
+  cat("          TS=(n-1)*s.sq/sigma0.sq = (",n,"-1 )*",s.sq,"/",sigma0.sq," = ",TS,"\n")
+}
+
+###### Step 3.4. Critical Value & p-value
+#step3.4.cvp = function(s.sq, sigma0.sq,  n, claim=c("GT","GE", "EQ","NE", "LT", "LE"), level, ...){
+step3.4.cvp = function(s.sq, sigma0.sq,  n, claim, level){
+if (level > 1 || level < 0) stop("The significant must be between 0 and 1 and is Usually close to 0!")
+#######  Case I: Normal Test  ########                
+   if(claim == "GT" || claim =="LE"){ #right--RRRRIIIGGHHTTT
+   TS=(n-1)*s.sq/sigma0.sq
+   pval = 1-pchisq(TS, n-1)
+   CV.R = abs(qchisq(1-level, n-1))
+  cat("Step 3.0  Since this is a right-tailed chi-square test, the critical value is\n")
+  cat("          on the right tail: That is CV.R (d.f.=",n-1,") = ",CV.R,"\n")
+  cat("          The corresponding P-value is the area to the right of TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+     if(pval < level){## Rejection+++++++RRRRRRRRRR
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"> CV.R=",CV.R,",\n")
+  cat("                                 We reject Ho: sigma0.sq <=",sigma0.sq,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: sigma0.sq <=",sigma0.sq,".\n")
+       if(claim =="GT"){           
+  cat("Step 4.5  We conclude the original claim that sigma0.sq >",sigma0.sq,".\n\n")
+       }                           
+       if(claim =="LE"){          
+  cat("Step 4.5  We reject the original claim that sigma0.sq <=",sigma0.sq,".\n\n")
+       }                           
+      }                           
+    else{ ## conclusion ++++++++++RRRRRRR  
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"< CV.R=",CV.R,",\n")
+  cat("                                 We fail to reject Ho: sigma0.sq <=",sigma0.sq,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail to reject Ho: sigma0.sq <=",sigma0.sq,".\n")
+       if(claim =="GT"){       
+  cat("Step 4.5  We reject the original claim that sigma0.sq >",sigma0.sq,".\n\n")
+       }                      
+       if(claim =="LE"){       
+  cat("Step 4.5  We fail to the original claim that sigma0.sq <=",sigma0.sq,".\n\n")
+       }                        
+     }                          
+    }
+#}
+# step3.4.cvp(s.sq=2.4, sigma0.sq=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+#
+   else if (claim == "LT" || claim =="GE"){#left ------------LLLEEEFFTTT
+   TS=(n-1)*s.sq/sigma0.sq
+   pval = pchisq(TS, n-1)
+   CV.L = abs(qchisq(level, n-1))
+  cat("Step 3.0  Since this is a left-tailed chi-square test, the critical value is\n")
+  cat("          on the left tail: That is CV.L (d.f.=",n-1,")= ",CV.L,"\n")
+  cat("          The corresponding P-value is the area to the left of TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+     if(pval < level){## Rejection++++++++++LLLLLLLLLLLLLLLLLLLLLLLL
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"< CV.L=",CV.L,",\n")
+  cat("                                 We reject Ho: sigma0.sq >=",sigma0.sq,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: sigma0.sq >=",sigma0.sq,".\n")
+  cat("          Note: P-value method is NOT recommended for manual computation!\n")
+       if(claim =="LT"){
+  cat("Step 4.5  We conclude the original claim that sigma0.sq <",sigma0.sq,".\n\n")
+       }
+       if(claim =="GE"){
+  cat("Step 4.5  We reject the original claim that sigma0.sq >=",sigma0.sq,".\n\n")
+       }
+      }
+    else{ ## conclusion ++++++++++
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS=",TS,"> CV.L=",CV.L,",\n")
+  cat("                                 We fail to reject Ho: sigma0.sq <=",sigma0.sq,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail reject Ho: sigma0.sq <=",sigma0.sq,".\n")
+  cat("          Note: P-value method is NOT recommended for manual computation!\n")
+       if(claim =="LT"){
+  cat("Step 4.5  We reject the original claim that sigma0.sq <",sigma0.sq,".\n\n")
+       }
+       if(claim =="GE"){
+  cat("Step 4.5  We conclude the original claim that sigma0.sq >=",sigma0.sq,".\n\n")
+       }
+     }
+}
+#}
+# step3.4.cvp(s.sq=2.4, sigma0.sq=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+#
+   else if(claim == "EQ" || claim =="NE"){# Two -------TTTTTTTTTWWWWWWWWWWWWWWWOOOOOOOOOOOO
+   TS=(n-1)*s.sq/sigma0.sq
+   pval = 2*min(pchisq(TS, n-1), 1-pchisq(TS, n-1))
+   CV.L = abs(qchisq(level/2, n-1))
+   CV.R = abs(qchisq(1-level/2, n-1))
+  cat("Step 3.0  Since this is a two-tailed chi-square test, the two critical values are\n")
+  cat("          on the left tail: That is CV.L (d.f.=",n-1,") = ",CV.L," and CV.R =",CV.R,".\n")
+  cat("          The corresponding P-value is twice the smaller area formed by TS =",TS,".\n")
+  cat("          That is, P-value =",pval,"\n")
+  cat("Step ")
+     if(pval < level){## Rejection++++++++++TTTTTTTTTTTTTTTTTT
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since TS =",TS," is OUTSIDE of interval [", CV.L, ", ",CV.R,"],\n")
+  cat("                                 We reject Ho: sigma0.sq =",sigma0.sq,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"< level=",level,",\n")
+  cat("                          we reject Ho: sigma0.sq =",sigma0.sq,".\n")
+  cat("          Note: P-value method is NOT recommended for manual computation!\n")
+       if(claim =="NE"){
+  cat("Step 4.5  We conclude the original claim that sigma0.sq !=",sigma0.sq,".\n\n")
+       }
+       if(claim =="EQ"){
+  cat("Step 4.5  We reject the original claim that sigma0.sq =",sigma0.sq,".\n\n")
+       }
+      }
+    else{ ## conclusion TTTTTTTTTTTTTTTTTTTTTTTT
+  cat("Step 4.0  Decision Rule: \n")
+  cat("          Critical Value Method: Since",CV.L,"=CV.L < TS=",TS,"< CV.R=",CV.R,",\n")
+  cat("                                 We fail to reject Ho: sigma0.sq =",sigma0.sq,".\n")
+  cat("          P-Value Method: Since p-value =",pval,"> level=",level,",\n")
+  cat("                          we fail reject Ho: sigma0.sq <=",sigma0.sq,".\n")
+  cat("          Note: P-value method is NOT recommended for manual computation!\n")
+       if(claim =="EQ"){
+  cat("Step 4.5  We conclude the original claim that sigma0.sq =",sigma0.sq,".\n\n")
+       }
+       if(claim =="NE"){
+  cat("Step 4.5  We reject the original claim that sigma0.sq !=",sigma0.sq,".\n\n")
+       }
+     }
+    }
+ #### END of n>30
+ # step3.4.cvp(s.sq=2.4, sigma0.sq=2.5,  n=35, s=1.5, claim="GT", level=0.05) 
+ #
+ # Next code is for n<=30
+ else stop("The Sample size is too small!")
+}
+# The final outout:
+step1.ave(sigma0.sq, claim)
+Step2.ts(s.sq, sigma0.sq, n)
+step3.4.cvp(s.sq, sigma0.sq,  n, claim, level)
+
+}
+
+## Test.1.var(s.sq=4.5, sigma0.sq=5.5, n=23, claim="GT", level=0.05)
+
+
+
+
+
