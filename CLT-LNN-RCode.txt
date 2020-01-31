@@ -1,0 +1,742 @@
+#####################################################
+###       West Chester Presentation R Code
+#####################################################
+
+###################################################
+####    Two Types of Questions of distributions
+###################################################
+Normal.demo <-function(){
+   mu <- 10
+   sig <- 10
+   x <- seq(-40, 50, length=200)
+   y <- dnorm(x, mean=10, sd=10)
+   #####
+   #dev.off()
+   X11(width=24, height=8)
+   ###
+   split.screen(c(1,2))
+   ###
+   screen(1)
+   par(mar=rep(2,4))
+   plot(1:10, type = "n", xlim=c(-30, 40), ylim=c(-0.01, 1.3*max(y)), axes = FALSE, bty = "n")
+   title("Type I Question", col = "navy")
+   lines(x,y, type="l", lwd=2, col="navy")
+   # axis(1)
+   # axis(2)
+   abline(h=0, lwd=2, col="navy")
+   text(10, 1.2*max(y), "What is probability P[-8 < X < 20]=?", col="navy")
+   polygon(c(-8, seq(-8,20, length=200),20), c(0,dnorm(seq(-8,20, length=200),mean=10, sd=10),0), col="lightskyblue1")
+   # segments(10,0,10,max(y), lty=2, col="lightslateblue")
+   points(c(-8,10,20), c(0,0,0),pch=21, cex=2, bg="gold2", col="darkorchid3")
+   text(c(-8,10, 20), c(-0.004,0.004,-0.004), c("-8","mean=10", "20"), col="navy")
+   text(8, 0.015, "P[-8 < X < 20]=?", col="red")
+   text(8, 0.025, "Question:?", col="red")
+   ###
+   screen(2)
+   par(mar=rep(2,4))
+   plot(1:10, type = "n", xlim=c(-30, 40), ylim=c(-0.01, 1.3*max(y)), axes = FALSE, bty = "n")
+   title("Type II Question", col = "navy")
+   lines(x,y, type="l", lwd=2, col="navy")
+   abline(h=0, lwd=2, col="navy")
+   # axis(1)
+   # axis(2)
+   text(10, 1.2*max(y), "What is Xo if P[Xo< X < 20] = 0.645", col="navy")
+   left.tail.prob <- pnorm(20, 10, 10) - 0.645
+   left.quantile <- round(qnorm(left.tail.prob, 10, 10),2)
+   polygon(c(left.quantile, seq(left.quantile,20, length=200),20), c(0,dnorm(seq(left.quantile,20, length=200),mean=10, sd=10),0), col="lightskyblue1")
+   points(c(left.quantile,10,20), c(0,0,0),pch=21, cex=2, bg="gold2", col="darkorchid3")
+   points(left.quantile, 0, pch=21, cex=2, bg="red", col="darkorchid3")
+   # segments(10,0,10,max(y), lty=2, col="lightslateblue")
+   text(c(10, 20),c(0.004,-0.004), c("mean=10", "20"), col="navy")
+   text(9.5, 0.015, "0.645", col="navy", cex = 0.9)
+   text(10.3, 0.020, "P[Xo< X < 20]=", col="navy", cex = 0.9)
+   text(-2,-0.004, "Question: Xo = ?   ", col="red")
+   ###################
+    # Sys.sleep(3)  
+   invisible(readline(prompt=""))
+   ################################
+   close.screen(all = TRUE)
+}
+
+#########################
+#####    LLN  DEMO
+#########################
+ LLN <- function(){
+   try(dev.off(), TRUE)
+   X11(width=12, height=8)
+   close.screen(all = TRUE)
+   N=50
+   # pois.vec0 <- rpois(N, lambda=15)[sample(1:N)]
+   pois.vec <- c(14, 17, 20, 15, 17, 7, 20, 13, 20, 12, 17, 20, 15, 7, 16, 8, 14,
+                 19, 10, 22, 14, 20, 15, 12, 15, 21, 21, 14, 16, 13, 14, 17, 10, 17,
+                 16, 21, 8, 21, 16, 12, 13, 17, 11, 13, 22, 11, 18, 19, 12, 17)
+   pois.avg <- mean(pois.vec)
+   # par(mar=rep(3,4))
+   plot(1:N, type="n", xlim=c(0,N), ylim=c(13, 18), xlab="Sample Size", ylab="Sample Mean")
+   title("LLN Demonstration")
+   abline(h=pois.avg)
+   points(1,pois.vec[1], pch=21, bg="gold2", col="red", cex = 1.5)
+   arrows(18, 17, 18, pois.avg, length=0.15, angle=20, lwd=2, col="navy")
+   text(18, 17.2, "True Population Mean", col="firebrick4")
+   # axis(1)
+   # axis(2)
+   box()
+   for (j in 2:N){
+      points(j, mean(pois.vec[1:j]),pch=21, bg="gold2", col="red", cex = 1.5)
+      segments(j-1, mean(pois.vec[1:(j-1)]),j, mean(pois.vec[1:j]), col="navy")
+      points(j, mean(pois.vec[1:j]),pch=21, bg="red", col="blue", cex = 0.8)
+      Sys.sleep(0.5)
+   }
+  }
+
+
+#######################
+####   CLT DEMO
+#######################
+CLT <- function(N, SN, dist){
+   #####
+   try(dev.off(),TRUE)
+   X11(width=14, height=18)
+   close.screen(all = TRUE)
+   ###
+   split.screen(c(2,1))
+   ###
+   screen(1)
+   if(dist=="non-norm"){
+      par(mar=rep(2,4))
+      #Plotting the true density as a sanity check
+      x <- seq(-10,20,.1)
+      truth <- .3*dnorm(x,0,1) + .5*dnorm(x,10,1) + .2*dnorm(x,3,2)
+      plot(x,truth,ylim=c(-0.15*max(truth), max(truth)), type="l", col="darkorchid3",lwd=2, axes=FALSE)
+      axis(1)
+      abline(h=0, col="darkorchid3")
+      title("Mixture Normal Population", cex.main = 0.8)
+      text(-2, 0.18, "0.3*N(0,1)+0.5*N(10,1)+0.2*N(3,2)", col="navy", cex=0.7)
+      text(-1, 0.16, "Population Mean: 14/5", col="navy", cex=0.7)
+   } else if (dist=="norm"){
+      par(mar=rep(2,4))
+      #Plotting the true density as a sanity check
+      x <- seq(-10,20,.1)
+      truth <- dnorm(x,5,3) 
+      plot(x,truth,ylim=c(-0.15*max(truth), max(truth)), type="l", col="darkorchid3",lwd=2, axes=FALSE)
+      axis(1)
+      abline(h=0, col="darkorchid3")
+      title("Normal Population", cex.main = 0.8)
+      text(5, 0.02, "Population: N(5,3)", col="navy", cex=0.7)
+   } else if (dist=="pois"){
+      par(mar=rep(2,4))
+      #Plotting the true density as a sanity check
+      x <- 0:20
+      truth <- dpois(x,5) 
+      plot(0:20, truth, type="l", ylim=c(-0.03, 1.3*max(truth)),col="white", axes=FALSE)
+      segments(x, rep(0,length(x)), x, truth,col=rainbow(7), lwd=3)
+      axis(1)
+      abline(h=0, col="darkorchid3")
+      title("Poisson Population", cex.main = 0.8)
+      text(15, 0.17, "Population: Poisson(5)", col="navy", cex=0.7)
+   }
+   ##########################
+   ##########################
+   screen(2)
+   if(dist=="non-norm"){ 
+      par(mar=rep(2,4))
+      ###
+      # The number of samples from the mixture distribution
+      #N <- 100
+      #SN <- 1000            
+      # Sample N random uniforms U
+      U <- runif((N*SN))
+      # Variable to store the samples from the mixture distribution                                             
+      sample.vec <- rep(NA,(N*SN))
+      # Sampling from the mixture
+      for(i in 1:(N*SN)){
+         if(U[i]<.3){
+           sample.vec[i] <- rnorm(1,0,1)
+         }else if(U[i]<.8){
+           sample.vec[i] <- rnorm(1,10,1)
+         }else{
+           sample.vec[i] <- rnorm(1,3,2)
+         }
+        }
+      sample.mtrx <- matrix(sample.vec, nrow=SN)
+      avg.vec <- rowMeans(sample.mtrx)
+      ### set up the histogram for the sampling distribution
+      x.min <- round(min(avg.vec), 2) - 0.01
+      x.max <- round(max(avg.vec),2) + 0.01
+      x.seq <- round(seq(x.min, x.max, length=10),2)  ## x-tick marks
+      ###
+      freq.vec <- NULL
+        for(k in 1:9){
+        freq.vec[k] <- length(which(avg.vec < x.seq[k+1] & avg.vec > x.seq[k]))
+       }
+      freq.max <- max(freq.vec)
+      int.length <- round((x.max-x.min)/9, 2)
+      x.lab <- as.character(c(x.min-int.length, x.seq, x.max+int.length))
+      plot(0, type="n", xlim=c(x.min-int.length, x.max+int.length), ylim=c(0,max(freq.vec)+100), axes = FALSE)
+      title("Sampling Distribution of Sample Means", cex.main = 0.8)
+      axis(1, at=c(x.min-int.length, x.seq, x.max+int.length), label=x.lab)
+      ####
+      #### define a zero vector to record the location of the sample mean in the following freq vector
+      ####
+      idx.sum <- rep(0, length(freq.vec))+50
+      for (j in 1:SN){
+        idx.vec <- rep(0, length(freq.vec))
+      ####
+      screen(2)
+      avg <- mean(sample.mtrx[j,])
+      ind <- which(x.seq > avg)[1]
+      idx.vec[ind-1] <- 1
+      ### update index-sum
+      idx.sum <-  idx.sum + idx.vec
+      ### building blocks for the histogram of the samples means
+      polygon(c(x.seq[ind-1], x.seq[ind-1],x.seq[ind], x.seq[ind]),c(idx.sum[ind]-1, idx.sum[ind], idx.sum[ind], idx.sum[ind]-1), col=j%%9, border=j%%9)    
+      ###
+      screen(1)
+      segments(sample.mtrx[j,], rep(.09*max(truth), N), sample.mtrx[j,], rep(.001, N), col=j%%9)
+      ### erase the sampling   
+      Sys.sleep(0.1)
+      polygon(c(-8, -8, 18, 18), c(.1*max(truth),.0005, .0005, .1*max(truth)), 
+            col="white", border=NA)
+      ###
+      }
+   } else if (dist=="norm"){
+      sample.vec <- rnorm(N*SN, 5, 3)
+      sample.mtrx <- matrix(sample.vec, nrow=SN)
+      avg.vec <- rowMeans(sample.mtrx)
+      ### set up the histogram for the sampling distribution
+      x.min <- round(min(avg.vec), 2) - 0.01
+      x.max <- round(max(avg.vec),2) + 0.01
+      x.seq <- round(seq(x.min, x.max, length=10),2)  ## x-tick marks
+      ###
+      freq.vec <- NULL
+        for(k in 1:9){
+        freq.vec[k] <- length(which(avg.vec < x.seq[k+1] & avg.vec > x.seq[k]))
+       }
+      freq.max <- max(freq.vec)
+      int.length <- round((x.max-x.min)/9, 2)
+      x.lab <- as.character(c(x.min-int.length, x.seq, x.max+int.length))
+      plot(0, type="n", xlim=c(x.min-int.length, x.max+int.length), ylim=c(-50,max(freq.vec)+200), xlab="", ylab="",axes = FALSE)
+      title("Sampling Distribution of Sample Means", cex.main = 0.8, line=3)
+      #axis(2)
+      axis(1, pos=-360,at=c(x.min-int.length, x.seq, x.max+int.length), label=x.lab)
+      ####
+      #### define a zero vector to record the location of the sample mean in the following freq vector
+      ####
+      idx.sum <- rep(0, length(freq.vec))+50
+      for (j in 1:SN){
+       idx.vec <- rep(0, length(freq.vec))
+       ####
+       screen(2)
+       avg <- mean(sample.mtrx[j,])
+       ind <- which(x.seq > avg)[1]
+       idx.vec[ind-1] <- 1
+       ### update index-sum
+       idx.sum <-  idx.sum + idx.vec
+       ### building blocks for the histogram of the samples means
+       polygon(c(x.seq[ind], x.seq[ind],x.seq[ind+1], x.seq[ind+1]),c(idx.sum[ind]-1, idx.sum[ind], idx.sum[ind], idx.sum[ind]-1), col=j%%9, border=j%%9)    
+       ###
+       screen(1)
+       segments(sample.mtrx[j,], rep(.09*max(truth), N), sample.mtrx[j,], rep(.001, N), col=j%%9)
+       ### erase the sampling   
+       Sys.sleep(0.1)
+       polygon(c(-8, -8, 18, 18), c(.1*max(truth),.0002, .0002, .1*max(truth)), 
+            col="white", border=NA)
+      }###     
+   } else if (dist=="pois"){
+     sample.vec <- rpois(N*SN, 5)
+      sample.mtrx <- matrix(sample.vec, nrow=SN)
+      avg.vec <- rowMeans(sample.mtrx)
+      ### set up the histogram for the sampling distribution
+      x.min <- round(min(avg.vec), 2) - 0.01
+      x.max <- round(max(avg.vec),2) + 0.01
+      x.seq <- round(seq(x.min, x.max, length=10),2)  ## x-tick marks
+      ###
+      freq.vec <- NULL
+        for(k in 1:9){
+        freq.vec[k] <- length(which(avg.vec < x.seq[k+1] & avg.vec > x.seq[k]))
+       }
+      freq.max <- max(freq.vec)
+      int.length <- round((x.max-x.min)/9, 2)
+      x.lab <- as.character(c(x.min-int.length, x.seq, x.max+int.length))
+      plot(0, type="n", xlim=c(x.min-int.length, x.max+int.length), ylim=c(-150,max(freq.vec)+200), xlab="", ylab="",axes = FALSE)
+      title("Sampling Distribution of Sample Means", cex.main = 0.8, line=3)
+      # axis(2)
+      axis(1, pos=-350,at=c(x.min-int.length, x.seq, x.max+int.length), label=x.lab)
+      ####
+      #### define a zero vector to record the location of the sample mean in the following freq vector
+      ####
+      ####
+      idx.sum <- rep(0, length(freq.vec)) +30
+      for (j in 1:SN){
+       idx.vec <- rep(0, length(freq.vec))
+       ####
+       screen(2)
+       avg <- mean(sample.mtrx[j,])
+       ind <- which(x.seq > avg)[1]
+       idx.vec[ind-1] <- 1
+       ### update index-sum
+       idx.sum <-  idx.sum + idx.vec
+       ### building blocks for the histogram of the samples means
+       polygon(c(x.seq[ind], x.seq[ind],x.seq[ind+1], x.seq[ind+1]),c(idx.sum[ind]-1, idx.sum[ind], idx.sum[ind], idx.sum[ind]-1), col=j%%9, border=j%%9)    
+       ###
+       screen(1)
+       ####
+       lwdth <- as.vector(ftable(sample.mtrx[j,]))
+       uniq <-sort(unique(sample.mtrx[j,]))
+       segments(uniq+2, rep(0.005, N), uniq+2, rep(.018, N), lwd=(N/200)*lwdth, col=j%%9)
+       ####
+       # segments(2+sample.mtrx[j,], rep(-0.01, N), 2+sample.mtrx[j,], rep(.01, N), col=j%%9)
+       ### erase the sampling   
+       Sys.sleep(0.1)
+       polygon(c(-1, -1, 20, 20), c(-.003, .025, .025, -.003), col="white", border=NA)
+       segments(1, -0.003, 19, -0.003)
+      }### 
+   }
+    ###
+    close.screen(all = TRUE)    # exit split-screen mode
+    ###########
+ }
+
+##########################################
+####        Sampling Distribution
+##########################################
+SamplingDistribution <-function(xbar, s, n, dist="unknown", x0, x1){
+######
+     try(dev.off(), TRUE)
+     X11(width=32, height=36)
+     close.screen(all = TRUE)
+     split.screen(c(2,1))
+###############  CLT Curve
+     ##########
+     ##########
+     s.xbar <- s/sqrt(n)
+     xmin <- min(x0, x1)
+     xmax <- max(x0, x1)
+     zmin <- round((xmin-xbar)/s.xbar,2)
+     zmax <- round((xmax-xbar)/s.xbar,2)
+     ####
+     # if (xmin == -Inf){
+     #    xmin <- xbar - 4.5*s.xbar
+     #    zmin <- -4.5
+     #  }
+     # if (xmax == Inf){
+     #    xmax <- xbar + 4.5*s.xbar
+     #   zmax <- 4.5
+     # }
+     ####
+     probability <- round(pnorm(xmax, xbar, s.xbar) - pnorm(xmin, xbar, s.xbar),3)
+     prob.left <- round(pnorm(xmax, xbar, s.xbar),2)
+     prob.right <- 1- round(pnorm(xmin, xbar, s.xbar),2)
+     #########
+     #########
+     screen(1)
+     #########
+     #########  
+     s.xbar <- round(s/sqrt(n),2)
+     x.lim <- c(xbar-4.5*s.xbar, xbar + 4.5*s.xbar)
+     ###
+     x.seq <- seq(xbar-3.5*s.xbar, xbar + 3.5*s.xbar, length=300)
+     ###
+     y.max <- 1.4*max(dnorm(x.seq, xbar, s.xbar)) 
+     par(mar=rep(2,4))
+     plot(x.seq, dnorm(x.seq, xbar, s.xbar), type="l", col="navy", lwd=2,
+          xlab="", ylab="", xlim=x.lim, ylim=c(-0.1*y.max, y.max), axes=FALSE)
+     title(paste("Sampling Distribution of Sample Mean (n =",n,")"), cex.main=0.7)
+     # axis(1, cex.axis=0.7)
+     # axis(2, cex.axis=0.7)
+     segments(xbar-4.5*s.xbar, 0, xbar+4.5*s.xbar, 0, col="navy")
+     ####
+        invisible(readline(prompt=""))
+     ####
+     # Given information
+     points(xbar-3.5*s.xbar, 0.87*y.max,pch=21, col="blue", bg="paleturquoise1", cex=2.5)
+     text(xbar-3.5*s.xbar, 0.87*y.max, "1", col="purple", cex=.8)
+     text(xbar, 0.98*y.max, bquote(paste("Given Information: ",bar(x)==.(xbar), ", ",s==.(s), ", ", n ==.(n), ", population distribution is ",.(dist),",")), cex=0.6, col="mediumblue")
+     text(xbar, 0.90*y.max, bquote(paste("which implies that  ", bar(x) %->% N(mu, sigma/sqrt(n)) %~% N(.(xbar), .(s)/sqrt(.(n))))), cex=0.6, col="midnightblue")
+     if (xmin == -Inf){
+       text(xbar, 0.82*y.max, bquote(paste("We are also given that  ", x[0] == -infinity, " and ", x[1] ==.(xmax),".")), cex=0.6, col="midnightblue")
+      } else if (xmax == Inf){
+       text(xbar, 0.82*y.max, bquote(paste("We are also given that  ", x[0] ==.(xmin), " and ", x[1] == infinity,".")), cex=0.6, col="midnightblue")
+      }else{
+       text(xbar, 0.82*y.max, bquote(paste("We are also given that  ", x[0] ==.(xmin), " and ", x[1] ==.(xmax),".")), cex=0.6, col="midnightblue")
+      }
+     ####
+        invisible(readline(prompt=""))
+     ####
+      if (xmin == -Inf){ 
+          points(xmax, 0, cex=1,  pch=21, col="red", bg="gold2")
+          points(xmax, 0, cex=.5,  pch=19, col="red")
+       } else if(xmax == Inf){
+          points(xmin, 0, cex=1,  pch=21, col="red", bg="gold2")
+          points(xmin, 0, cex=.5,  pch=19, col="red")
+       } else {
+          points(xmin, 0, cex=1,  pch=21, col="red", bg="gold2")
+          points(xmin, 0, cex=.5,  pch=19, col="red")
+          points(xmax, 0, cex=1,  pch=21, col="red", bg="gold2")
+          points(xmax, 0, cex=.5,  pch=19, col="red")
+       }
+     ####
+        invisible(readline(prompt=""))
+     ####
+     segments(c(xmin, xmax),c(0,0), c(xmin,xmax), dnorm(c(xmin,xmax), xbar, s.xbar), col="blue")
+     if (xmin == -Inf){ 
+         text(xmax, -0.075*y.max,  paste("x1 =",xmax), col="dodgerblue4", cex=0.7)
+       }else if(xmax == Inf){
+         text(xmin, -0.075*y.max, paste("x0 =",xmin), col="dodgerblue4", cex=0.7)
+       }else {
+         text(c(xmin,xmax), rep(-0.075*y.max,2), c(paste("x0 =",xmin), paste("x1 =",xmax)), col="dodgerblue4", cex=0.7)
+       }
+     ####
+        invisible(readline(prompt=""))
+     ####
+     ####
+     if (xmin == -Inf){
+         poly.seq <- seq(xbar-4.5*s.xbar, xmax, length=100)
+         polygon(c(xbar-4.5*s.xbar,  poly.seq, xmax), c(0,dnorm( poly.seq, xbar, s.xbar), 0), col="cadetblue2")
+      } else if (xmax == Inf){
+          poly.seq <- seq(xmin, xbar+4.5*s.xbar, length=100)
+          polygon(c(xmin,  poly.seq, xbar-4.5*s.xbar), c(0,dnorm( poly.seq, xbar, s.xbar), 0), col="cadetblue2")
+      }else{
+         poly.seq <- seq(xmin, xmax, length=100)
+         polygon(c(xmin,  poly.seq, xmax), c(0,dnorm( poly.seq, xbar, s.xbar), 0), col="cadetblue2")
+     }
+     # poly.seq <- seq(xmin, xmax, length=100)
+     # polygon(c(xmin,  poly.seq, xmax), c(0,dnorm( poly.seq, xbar, s.xbar), 0), col="cadetblue2")
+     ####
+        invisible(readline(prompt=""))
+     ####
+     ## Probability anaotation
+     if (xmin == -Inf){ 
+         prob.x <- qnorm(0.5*prob.left, xbar, s.xbar)
+         prob.y <- 0.5*dnorm(prob.x, xbar, s.xbar)
+       }else if(xmax == Inf){
+         prob.x <- qnorm(0.5*prob.right+pnorm(xmin, xbar, s.xbar), xbar, s.xbar)
+         prob.y <- 0.5*dnorm(prob.x, xbar, s.xbar)
+       }else {
+         prob.x <- (xmin+xmax)/2 
+         prob.y <- 0.5*dnorm(prob.x, xbar, s.xbar)
+       }
+     ###
+     if (prob.x> xbar){
+          arrows(xbar+2.25*s.xbar, 0.5*y.max, prob.x, prob.y, angle=20, length=0.1, col="mediumblue", lwd=2)
+          text(xbar+2.25*s.xbar, 0.63*y.max, "Question:", col="firebrick", cex=0.6)
+          text(xbar+2.25*s.xbar, 0.55*y.max, "P(x0 < X < x1)=?", col="mediumblue", cex=0.6)
+        } else{
+          arrows(xbar-2.25*s.xbar, 0.5*y.max, prob.x, prob.y, angle=20, length=0.1, col="mediumblue", lwd=2)
+          text(xbar-2.25*s.xbar, 0.63*y.max, "Question:", col="firebrick", cex=0.6)
+          text(xbar-2.25*s.xbar, 0.55*y.max, paste("P(x0< X < x1) = ?"), col="mediumblue", cex=0.6)
+      }
+       ####
+        invisible(readline(prompt=""))
+       ####
+########################################
+########################################  
+    screen(2)
+########################################
+########################################
+    ########
+    x.lim0 <- c(-4.5,  4.5)
+    x.seq0 <- seq(-3.5,  3.5, length=300)
+    y.max0 <- 1.4*max(dnorm(x.seq0, 0, 1)) 
+    par(mar=rep(2,4))
+    plot(x.seq0, dnorm(x.seq0, 0, 1), type="l", col="navy", lwd=2,
+          xlab="", ylab="", xlim=x.lim0, ylim=c(-0.1*y.max0,y.max0), axes=FALSE)
+    title(paste("Standard Normal Distribution"), cex.main=0.7)
+    segments(-4.5, 0, 4.5, 0, col="navy")
+    # axis(1, cex.axis=0.7)
+    # axis(2, cex.axis=0.7)
+    ####
+        invisible(readline(prompt=""))
+    ####
+    ####################  
+    text(0, 0.95*y.max0, bquote(paste("Z-score:  ",z[i]==frac(x[i]-mu,sigma/sqrt(n)))), cex=0.6, col="royalblue1")
+    ####
+        invisible(readline(prompt=""))
+    ####
+     points(0, 0.80*y.max0, pch=21, col="blue", bg="paleturquoise1", cex=2.5)
+     text(0, 0.80*y.max0, "2", col="purple", cex=.8)
+    ####
+        invisible(readline(prompt=""))
+    ####    
+     if (xmin == -Inf){ 
+           text(-2.25, 0.8*y.max0, bquote(z[0]==frac(-infinity-.(xbar),.(s)/sqrt(.(n))) %~~% -infinity), cex=0.6, col="royalblue1")
+           text( 2.25, 0.8*y.max0, bquote(z[1]==frac(.(xmax)-.(xbar),.(s)/sqrt(.(n))) %~~% .(zmax)), cex=0.6, col="royalblue1") 
+       }else if(xmax == Inf){
+           text(-2.25, 0.8*y.max0, bquote(z[0]==frac(.(xmin)-.(xbar),.(s)/sqrt(.(n))) %~~% .(zmin)), cex=0.6, col="royalblue1")
+           text( 2.25, 0.8*y.max0, bquote(z[1]==frac(infinity-.(xbar),.(s)/sqrt(.(n))) %~~% infinity), cex=0.6, col="royalblue1")
+       }else {
+           text(-2.25, 0.8*y.max0, bquote(z[0]==frac(.(xmin)-.(xbar),.(s)/sqrt(.(n))) %~~% .(zmin)), cex=0.6, col="royalblue1")
+           text( 2.25, 0.8*y.max0, bquote(z[1]==frac(.(xmax)-.(xbar),.(s)/sqrt(.(n))) %~~% .(zmax)), cex=0.6, col="royalblue1")
+       }
+    ####
+        invisible(readline(prompt=""))
+    ###
+    points(zmin, 0, cex=1,  pch=21, col="red4", bg="orchid4")
+    points(zmax, 0, cex=1,  pch=21, col="red4", bg="orchid4")
+    points(zmin, 0, cex=.5,  pch=19, col="red4")
+    points(zmax, 0, cex=.5,  pch=19, col="red4")
+    segments(c(zmin, zmax),c(0,0), c(zmin,zmax), dnorm(c(zmin,zmax), 0, 1), col="blue")
+    if (xmin == -Inf){ 
+         text(zmax, -0.075*y.max0,  paste("z1 =",zmax), col="dodgerblue4", cex=0.6)
+       }else if(xmax == Inf){
+         text(zmin, -0.075*y.max0, paste("z0 =",zmin), col="dodgerblue4", cex=0.6)
+       }else {
+         text(c(zmin,zmax), rep(-0.075*y.max0,2), c(paste("z0 =",zmin), paste("z1 =",zmax)), col="dodgerblue4", cex=0.6)
+       }
+    ####
+        invisible(readline(prompt=""))
+    ###
+     if (xmin == -Inf){
+         poly.seqz <- seq(-4.5, zmax, length=100)
+         polygon(c(-4.5,  poly.seqz, zmax), c(0,dnorm( poly.seqz, 0, 1), 0), col="turquoise3")
+      } else if (xmax == Inf){
+         poly.seqz <- seq(zmin, 4.5, length=100)
+         polygon(c(zmin,  poly.seqz, 4.5), c(0,dnorm( poly.seqz, 0, 1), 0), col="turquoise3")
+      }else{
+         poly.seqz <- seq(zmin, zmax, length=100)
+         polygon(c(zmin,  poly.seqz, zmax), c(0,dnorm( poly.seqz, 0, 1), 0), col="turquoise3")
+     }    
+    # poly.seqz <- seq(zmin, zmax, length=100)
+    # polygon(c(zmin,  poly.seqz, zmax), c(0,dnorm( poly.seqz, 0, 1), 0), col="turquoise3")
+    ####
+        invisible(readline(prompt=""))
+    ###
+    ## Probability anaotation
+    ##
+    if (xmin == -Inf){ 
+         prob.x0 <- qnorm(0.5*prob.left) 
+         prob.y0 <- 0.5*dnorm(prob.x0, 0, 1)
+       }else if(xmax == Inf){
+         prob.x0 <- qnorm(0.5*prob.right+pnorm(zmin))
+         prob.y0 <- 0.5*dnorm(prob.x0, 0, 1)
+       }else {
+         prob.x0 <- (zmin+zmax)/2 
+         prob.y0 <- 0.5*dnorm(prob.x0, 0, 1)
+       }
+    ##
+    if (prob.x0 > 0){
+          points(2.75, 0.45*y.max0, pch=21, col="blue", bg="paleturquoise1", cex=2.5)
+          text(2.75, 0.45*y.max0, "3", col="purple", cex=.8)
+          arrows(2.25, 0.5*y.max0, prob.x0, prob.y0, angle=20, length=0.1, col="mediumblue", lwd=2)
+          text(2.25, 0.55*y.max0, paste("P(z0 < Z < z1) =", probability), col="mediumblue", cex=0.6)
+         } else{
+          points(-2.75, 0.45*y.max0, pch=21, col="blue", bg="paleturquoise1", cex=2.5)
+          text(-2.75, 0.45*y.max0, "3", col="purple", cex=.8)
+          arrows(-2.25, 0.5*y.max0, prob.x0, prob.y0, angle=20, length=0.1, col="mediumblue", lwd=2)
+          text(-2.25, 0.55*y.max0, paste("P(z0 < Z < z1) = ", probability), col="mediumblue", cex=0.6)
+      }
+    ####
+        invisible(readline(prompt=""))
+    ###
+########################################
+########################################  
+     if (prob.x> xbar){
+          ####
+          invisible(readline(prompt=""))
+          ###
+          screen(1)
+          ###
+          polygon(c(xbar+s.xbar,xbar+s.xbar, xbar+3.5*s.xbar, xbar+3.5*s.xbar),c(0.49*y.max, 0.65*y.max, 0.65*y.max, 0.49*y.max), col="white", border = NA)
+          ###
+          text(xbar+2.25*s.xbar, 0.64*y.max, "Answer:", col="magenta4", cex=0.6)
+          text(xbar+2.25*s.xbar, 0.58*y.max, bquote(paste("P(x0 < ",bar(X), " < x1) = ")), col="magenta4", cex=0.6)
+          text(xbar+2.25*s.xbar, 0.52*y.max, bquote(paste("P(z0 < Z < z1) = ",.(probability))), col="magenta4", cex=0.6)
+          ####
+          points(xbar+2.75*s.xbar, 0.45*y.max, pch=21, col="blue", bg="paleturquoise1", cex=2.5)
+          text(xbar+2.75*s.xbar, 0.45*y.max, "4", col="red4", cex=.8)
+          } else{
+          ####
+            invisible(readline(prompt=""))
+          ###
+          screen(1)
+          ###
+          polygon(c(xbar-s.xbar,xbar-s.xbar, xbar-3.5*s.xbar, xbar-3.5*s.xbar),c(0.49*y.max, 0.65*y.max, 0.65*y.max, 0.49*y.max), col="white", border = NA)
+          ###
+          text(xbar-2.25*s.xbar, 0.64*y.max, "Answer:", col="magenta4", cex=0.6)
+          text(xbar-2.25*s.xbar, 0.58*y.max, bquote(paste("P(x0 < ",bar(X), " < x1) = ")), col="magenta4", cex=0.6)
+          text(xbar-2.25*s.xbar, 0.52*y.max, bquote(paste("P(z0 < Z < z1) = ",.(probability))), col="magenta4", cex=0.6)
+          ####
+          points(xbar-2.75*s.xbar, 0.45*y.max, pch=21, col="blue", bg="paleturquoise1", cex=2.5)
+          text(xbar-2.75*s.xbar, 0.45*y.max, "4", col="red4", cex=.8)
+      }
+    ##########
+  }
+
+###########################################
+#########   Research Presentation
+###########################################
+##################################################
+####        Animated Demo of Index Model
+##################################################
+dollars=c(96.64,47.05,57.42,65.40,93.74,93.33,105.12,115.67,65.67,117.45,85.15,
+86.66,50.00,50.00,102.48,102.29,117.20,102.45,43.29,90.31,74.96,34.03,
+50.56,39.00,78.16,60.43,23.54,65.00,60.06,47.44,45.52,26.47,41.55,
+67.82,52.19,47.87,44.12,87.00,70.00,88.50,70.00,84.00,74.00,105.07,
+99.98,74.01,71.00,75.01,71.00,17.00,72.00,76.00,82.80,65.08,95.35,
+87.32,77.42,137.92,84.14,69.69,66.81,97.07,109.78,108.08,74.00,57.15,
+63.96,61.40,98.00,72.99,34.34,72.38,64.03,91.84,92.48,103.84,80.44,
+76.50,89.25,60.31,34.66,76.59,112.35,67.02,87.34,74.68,113.93,115.32,
+108.11,115.42,72.70,90.73,91.01,96.06,107.74,84.65,96.89,93.83,105.00,
+113.11,100.11,103.09,74.07,80.00,85.79,299.83,161.83,185.47,299.80,168.25,
+258.63,299.55,238.76,299.79,147.00,299.50,114.10,300.00,226.31,300.00,204.79)
+gas.amt = dollars
+###################
+####
+fraud.detection.demo <- function(){
+  ##### Calculate the rolling pseudo index
+  N = 25
+  M <- 6
+  i <- 1
+  NN = length(dollars)
+  FI <- NULL
+  USL.x <- NULL
+  while(N+i-1+M <= NN){
+      train <- dollars[i:(N+i-1)]
+      test <- dollars[(N+i):(N+i+M-1)]
+      USL <- mean(train)+4*(max(train)-mean(train))
+      TT <- mean(train)
+      FI[i] <- (USL-mean(test))^2/(9*(((max(test)-mean(test))/3)^2+(mean(test)-TT)^2))
+      USL.x[i] <- USL
+      i <- i + 1
+   }
+  ##### LSL for PCI charts: This is a hyperparameter to be tuned from data based on performance metrics
+  max.idx <- max(FI)
+  neg.fidx <- 15*(sqrt(FI) - sqrt(max.idx))-100
+  pci.avg <- mean(neg.fidx)
+  pci.sd <- sd(neg.fidx)
+  LSL.pci <- pci.avg - 1.28*pci.sd
+  ###  plot layout setup
+  # windows(width=12, height=7)
+  try(dev.off(), TRUE)
+  close.screen(all = TRUE)
+  X11(width=20, height=7)
+  plot(0, type="n", main="Demonstration of Index Model in Classification",
+      xlim=c(0,125), ylim=c(-450, 400), xlab="Transaction Sequence",
+      ylab = "", axes=FALSE)
+  axis(1)   ## adding horizontal axis
+  lab <- c("-80", "-40",  " 0 ",   "40",  "80",  "120",  "160",  "200", "  ", "$50", "$100", "$150", "$200","$250", "$300", "$350", "$400")
+  axis(2, at=c(-400, -350, -300, -250, -200, -150, -100, -50,  0, 50, 100, 150, 200,250, 300, 350, 400), labels=lab, pos=-2, las=2)
+  ## break the vertical axis down and get two vertices
+  segments(-2,-10,-2, -50, lwd=4, lty=1, col="white")    ## 
+  ###
+  points(1:NN, dollars[1:NN],type="b", col="gray88")
+  points(1:N, dollars[1:N], col="gray", pch=18)
+  points((N+1):(N+M-1), dollars[(N+1):(N+M-1)], type="b", col="blue", pch=16)
+  segments(0, LSL.pci, 120, LSL.pci, lty=2, col="red")
+  segments(0, 0, 120, 0, lty=1, lwd=2, col="darkblue")
+  ### pseudo-index formula
+  text(15, -150, expression(paste("idx = ",frac(USL-mu,3*sqrt(((max-mu)/3)^2+(T-mu)^2)))), col="brown", cex=0.9)
+  ###  some annotations
+  text(18, 395, "Transaction Dollar Amount Control Chart", col="darkblue", cex=.9)
+  text(12, -50, "Pseudo-fraud-index Control Chart", col="darkblue", cex=0.9)
+  text(20, LSL.pci-20, paste("LSL: Universal Decision Bound = 1 "), col="red", cex = 0.9)
+  ###
+  for(j in 1:(NN-N-M)){
+      ### Moving window: two parallel vertical line segments
+      segments(N+j, dollars[N+j]-40, N+j, dollars[N+j]+40, lty=1, col="darkgreen") 
+      segments(N+j+M-1, dollars[N+j+M-1]-40, N+j+M-1, dollars[N+j+M-1]+40, lty=1, col="red")
+      ##  Horizontal line segments: longer one represents USL, shorter one fr PCI
+      segments(j,USL.x[j], N+j, USL.x[j], lty=1, col="coral")
+      segments(N+j,USL.x[j], N+j+M-1, USL.x[j], lty=2, col="coral")
+      points(j,USL.x[j], pch= 20, col="darkgreen")
+      points(N+j, USL.x[j], pch= 20, col="blue")
+      points(N+j+M-1, USL.x[j], pch= 20, col="brown")
+      ###  Vertical broken lines linking to the data points 
+      segments(j,USL.x[j], j, dollars[j]+5, lty=2, col="gray")
+      segments(N+j, USL.x[j], N+j, dollars[N+j]+5, lty=2, col="blue")
+      segments(N+j+M-1, USL.x[j], N+j+M-1, dollars[N+j+M-1]+5, lty=2, col="brown")
+      ### moving window with M data points to calculate the PCI
+      points((N+j):(N+j+M-1), dollars[(N+j):(N+j+M-1)], type="b", col="blue", pch=16)
+      points(N+j+M-1,dollars[N+j+M-1], pch=16, col="brown")
+      ###
+      if(neg.fidx[j] >= LSL.pci){
+      # if(FI[j] >= 1){
+        points((N+M-1+j), dollars[N+M-1+j], pch=21, col="blue")
+        segments((N+M-2+j), dollars[N+M-2+j],(N+M-1+j), dollars[N+M-1+j], lty=1, col="blue")
+        points((N+M-1+j), neg.fidx[j], pch=16, col="brown")
+        if (j>1){
+             segments((N+M-2+j), neg.fidx[j-1],(N+M-1+j), neg.fidx[j], lty=1, col="deepskyblue3")
+          }
+        text(N+M-1+j, -50, paste("idx =", round(FI[j],2)), col="red", cex=0.8)
+       }
+     else{
+        ### erase points and segments and move to next window
+        ### two short vertical segments
+        segments(N+j, dollars[N+j]-40, N+j, dollars[N+j]+40, lty=1, col="white") 
+        segments(N+j+M-1, dollars[N+j+M-1]-40, N+j+M-1, dollars[N+j+M-1]+40, lty=1, col="white")
+        ## combining two parallel segments-long solid and short broken segments and erase it.
+        segments(j,USL.x[j], N+j-1+M, USL.x[j], lty=1, col="white")
+        ## three points on the hirizontal segments
+        points(j,USL.x[j], pch= 20, col="white", cex=2)
+        points(N+j, USL.x[j], pch= 20, col="white", cex=2)
+        points(N+j+M-1, USL.x[j], pch= 20, col="white", cex=2)
+        ## three long vertical segments (broken lines)
+        segments(j,USL.x[j], j, dollars[j]+10, lty=2, col="white")
+        segments(N+j, USL.x[j], N+j, dollars[N+j]+40, lty=2, col="white")
+        segments(N+j+M-1, USL.x[j], N+j+M-1, dollars[N+j+M-1]+40, lty=2, col="white")
+        #########################
+        segments((N+M-2+j), dollars[N+M-2+j],(N+M-1+j), dollars[N+M-1+j], lty=1, lwd=2, col="white")
+        segments((N+M-2+j), dollars[N+M-2+j],(N+M-1+j), dollars[N+M-1+j], lty=1, col="red")
+        segments((N+M-2+j), neg.fidx[j-1],(N+M-1+j), neg.fidx[j], lty=1, col="red")
+        text((N+M-1+j), dollars[N+M-1+j]+40, "Fraud!", col="red", cex=0.7)
+        ###
+        points((N+M-1+j), dollars[N+M-1+j], pch=19, cex=2, col="red")
+        points((N+M-1+j), neg.fidx[j], pch=17, col="red", cex=1.5)
+        ###
+        text(N+M-1+j, -50, paste("idx =", round(FI[j],2)), col="red", cex=0.7)
+        ##
+        break
+      }
+   Sys.sleep(2)
+   ### erase points and segments and move to next window
+   ### two short line segment: PCI window
+   segments(N+j, dollars[N+j]-40, N+j, dollars[N+j]+40, lty=1, col="white") 
+   segments(N+j+M-1, dollars[N+j+M-1]-40, N+j+M-1, dollars[N+j+M-1]+40, lty=1, col="white")
+   ## USL line seqments - long solid segment and short broken segment
+   segments(j,USL.x[j], N+j, USL.x[j], lty=1, col="white")
+   segments(N+j,USL.x[j], N+j+M-1, USL.x[j], lty=2, col="white")
+   ## three dots on the hoeizontal lines
+   points(j,USL.x[j], pch= 20, col="white")
+   points(N+j, USL.x[j], pch= 20, col="white")
+   points(N+j+M-1, USL.x[j], pch= 20, col="white")
+   ### Change the brown color to darkgree for dollar amount and deepskyblue3 for PCI
+   points((N+j), dollars[(N+j)], type="b", col="darkgreen", pch=16)
+   points((N+M-1+j), neg.fidx[j], pch=16, col="deepskyblue3")
+   ##
+   segments(j,USL.x[j], j, dollars[j]+10, lty=2, col="white")
+   segments(N+j, USL.x[j], N+j, dollars[N+j]+40, lty=2, col="white")
+   segments(N+j+M-1, USL.x[j], N+j+M-1, dollars[N+j+M-1]+40, lty=2, col="white")
+   text(N+M-1+j, -50, paste("idx =", round(FI[j],2)), col="white", cex=0.8)
+   rect(N-1+j, -75, N+2*M-1+j, -25, col="white",border = FALSE)
+  }
+    ### hyper parameters
+  text(8, 350, "Hyperparameters:", col="darkgreen", cex= 0.8)
+  text(16, 320, "  1. USL - individualized tuning parameter", col="darkblue", cex=0.7)
+  text(18, 290, " 2. Number of data points for estimatine USL", col="darkblue", cex=0.7)
+  text(18, 260, "3. Number of data points for estimatine PCI", col="darkblue", cex=0.7)
+  ###
+  text(8, -370, "Hyperparameters:", col="darkgreen", cex= 0.8)
+  text(20,-400, "4. Univeral decision boundary: good for all cards", col="darkblue", cex=0.7)
+}
+############################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
