@@ -1,0 +1,99 @@
+#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+################################################
+###      R Code: West Chester Presentation
+###############################################
+#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+
+source("C:/cpeng/WCU-Teaching/2020Spring/STA506-MathStats-II/Rnotes/CLT-LNN-RCode-v2.txt")
+
+################################################
+################################################
+###       Teaching Preseation R  Demo
+################################################
+################################################
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#    Two Types of Questions
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Normal.demo()
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  LLN Demo (Animation)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LLN()
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  CLT DEMO (Animation)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ CLT(N=30, SN=1000,dist="pois")
+ CLT(N=30, SN=1000,dist="norm")
+ CLT(N=30, SN=1000,dist="non-norm")  
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   Sampling Distribution Solver
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#----------------
+#   Example 0
+#---------------
+# (a)
+SamplingDistribution(xbar=112, 
+                     s=40, 
+                     n = 50, 
+                     dist="unknown", 
+                     x0 = 110, 
+                     x1 = 114)
+# (b)
+SamplingDistribution(xbar=112, 
+                     s=40, 
+                     n = 50, 
+                     dist="unknown", 
+                     x0 = 113, 
+                     x1 = Inf)
+
+#---------------------
+#    Example 1
+#---------------------
+# (a)
+SamplingDistribution(xbar=60, 
+                     s=3.5, 
+                     n = 1, 
+                     dist="normal", 
+                     x0 = -Inf, 
+                     x1 = 57)
+# (b)
+SamplingDistribution(xbar=60, 
+                     s=3.5, 
+                     n = 5, 
+                     dist="normal", 
+                     x0 = -Inf, 
+                     x1 = 57)
+
+#----------------------
+#    Example 2
+#----------------------
+SamplingDistribution(xbar=47, 
+                     s=6, 
+                     n = 50, 
+                     dist="unknown", 
+                     x0 = 48, 
+                     x1 = Inf)
+
+#-----------------------
+#     Example 3
+#-----------------------
+SamplingDistribution(xbar=2.6, 
+                     s=1.4, 
+                     n = 100, 
+                     dist="unknown", 
+                     x0 = 3, 
+                     x1 = Inf)
+
+
+#########################################################
+#########################################################
+#####   Research Demo: Fraud Model - Classification
+#########################################################
+#########################################################
+
+fraud.detection.demo()
